@@ -4,7 +4,7 @@ from agentic_rag_core import DocumentProcessor, AgenticRAGGenerator
 
 async def test_documents():
     processor = DocumentProcessor()
-    docs = await processor.load_documents("documents")
+    docs = await processor.load_documents("backend\documents")
     chunks = processor.chunk_documents(docs)
 
     print(f"Pages loaded: {len(docs)}")
@@ -37,7 +37,7 @@ for i, r in enumerate(results["results"], 1):
 rag_generator = AgenticRAGGenerator(vectorstore_manager)
 
 response = rag_generator.query(
-    "how much will i pay for task as a small business owner",
+    "what are the functions central bank of nigeria",
     thread_id="test_session_1"
 )
 
