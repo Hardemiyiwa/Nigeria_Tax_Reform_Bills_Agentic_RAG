@@ -1,0 +1,34 @@
+.landing {
+  max-width: 900px;
+  margin: 120px auto;
+  text-align: left;
+  padding: 0 20px;
+}
+
+.landing h1 {
+  font-size: 44px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #0f172a;
+}
+
+.landing p {
+  font-size: 18px;
+  color: #475569;
+  max-width: 600px;
+  margin-bottom: 40px;
+}
+
+.cta-btn {
+  background: #0a5c36;
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cta-btn:hover {
+  background: #084b2c;
+}
