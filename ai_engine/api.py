@@ -115,7 +115,7 @@ async def startup_event():
         
         # Build the RAG system
         doc_processor, vectorstore_manager, rag_generator = await build_agentic_rag_system(
-            documents_folder="backend\documents"  # Adjust path
+            documents_folder="ai_engine\documents"  # Adjust path
         )
         
         logger.info("RAG system initialized successfully")

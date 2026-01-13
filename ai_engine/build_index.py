@@ -14,7 +14,7 @@ async def main():
     print("BUILDING AGENTIC RAG INDEX")
     print("=" * 60 + "\n")
 
-    documents_folder = "backend\documents"
+    documents_folder = "ai_engine\documents"
 
     # Build the complete Agentic RAG system
     doc_processor, vectorstore_manager, rag_generator = (
