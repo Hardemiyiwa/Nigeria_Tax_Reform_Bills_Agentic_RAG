@@ -95,7 +95,14 @@ def chat_endpoint(req: schemas.ChatRequest, request: Request, db: Session = Depe
     db.add(assistant_msg)
     db.commit()
 
-    return {"chat_id": chat.id, "reply": reply_text, "retrieved_context": retrieved}
+    # Return full messages for the chat
+    msgs = db.query(models.Message).filter(models.Message.chat_id == chat.id).order_by(models.Message.created_at).all()
+    messages_out = [
+        {"id": m.id, "chat_id": m.chat_id, "role": m.role, "content": m.content, "created_at": m.created_at}
+        for m in msgs
+    ]
+
+    return {"chat_id": chat.id, "reply": reply_text, "retrieved_context": retrieved, "messages": messages_out}
 
 
 
@@ -333,6 +340,43 @@ async def delete_thread(thread_id: str):
         return {"status": "success", "message": f"Thread {thread_id} deleted"}
     
     raise HTTPException(status_code=404, detail="Thread not found")
+
+
+# New chat history endpoints
+@app.get("/chats")
+def list_chats(request: Request, db: Session = Depends(get_db)):
+    user = get_user_from_auth_header(request, db)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+    chats = db.query(models.Chat).filter(models.Chat.user_id == user.id).order_by(models.Chat.created_at.desc()).all()
+    result = []
+    for c in chats:
+        last_msg = None
+        if c.messages:
+            last_msg = c.messages[-1].content
+        result.append({"id": c.id, "user_id": c.user_id, "created_at": c.created_at, "last_message": last_msg})
+
+    return {"chats": result}
+
+
+@app.get("/chats/{chat_id}")
+def get_chat_messages(chat_id: int, request: Request, db: Session = Depends(get_db)):
+    user = get_user_from_auth_header(request, db)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
+    chat = db.query(models.Chat).filter(models.Chat.id == chat_id, models.Chat.user_id == user.id).first()
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+
+    msgs = db.query(models.Message).filter(models.Message.chat_id == chat.id).order_by(models.Message.created_at).all()
+    messages_out = [
+        {"id": m.id, "chat_id": m.chat_id, "role": m.role, "content": m.content, "created_at": m.created_at}
+        for m in msgs
+    ]
+
+    return {"chat": {"id": chat.id, "user_id": chat.user_id, "created_at": chat.created_at, "messages": messages_out}}
 
 
 # ERROR HANDLERS

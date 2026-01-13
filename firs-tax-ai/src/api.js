@@ -23,12 +23,22 @@ export async function signup(email, password) {
   return request("/auth/signup", { method: "POST", body: { email, password } })
 }
 
-export async function sendChat(message, chat_id = null, token) {
+export async function sendChat(message, chat_id = null, token, language = null) {
+  const body = { message, chat_id }
+  if (language) body.language = language
   return request("/chat", {
     method: "POST",
-    body: { message, chat_id },
+    body,
     token,
   })
 }
 
-export default { API_URL, request, login, signup, sendChat }
+export async function listChats(token) {
+  return request("/chats", { method: "GET", token })
+}
+
+export async function getChatMessages(chat_id, token) {
+  return request(`/chats/${chat_id}`, { method: "GET", token })
+}
+
+export default { API_URL, request, login, signup, sendChat, listChats, getChatMessages }

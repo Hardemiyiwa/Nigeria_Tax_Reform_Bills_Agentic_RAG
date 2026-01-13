@@ -25,3 +25,24 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     chat_id: int
     reply: str
+
+
+class MessageOut(BaseModel):
+    id: int
+    chat_id: int
+    role: str
+    content: str
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+class ChatOut(BaseModel):
+    id: int
+    user_id: int
+    created_at: datetime
+    messages: List[MessageOut] = []
+
+    class Config:
+        orm_mode = True
