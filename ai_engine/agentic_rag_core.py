@@ -314,6 +314,18 @@ DO retrieve for:
 - Questions involving revenue distribution or fiscal policy
 - Any question where citing official Acts improves accuracy or trust
 
+CALCULATION RULES:
+
+Use the calculator tool ONLY when:
+- A numerical tax amount is requested
+- Required inputs (amount, rate, base) are known or provided
+- Relevant tax rules have been retrieved
+
+DO NOT calculate if:
+- Tax rate is not stated in retrieved documents
+- Required inputs are missing
+- The question is purely explanatory
+
 CITATION RULES:
 - Use inline citations like [1], [2]
 - End answers with a "Sources" section
@@ -335,8 +347,38 @@ Never fabricate legal provisions or interpretations.
             Retrieve relevant legal document chunks from Nigerian tax Acts.
             """
             return self.vectorstore_manager.retrieve_documents(query, k)
+        
+        @tool
+        def tax_calculator(
+            base_amount: float,
+            rate: float,
+            description: str = ""
+        ) -> dict:
+            """
+            Perform tax calculation using a provided rate.
 
-        return [retrieve_documents]
+            This tool ONLY performs arithmetic.
+            Tax rules and rates must come from retrieved documents.
+
+            Args:
+                base_amount (float): The taxable amount
+                rate (float): Tax rate as a percentage (e.g. 7.5 for VAT)
+                description (str): Optional explanation of the calculation basis
+
+            Returns:
+                dict: Calculated tax amount and breakdown
+            """
+
+            tax_due = base_amount * (rate / 100)
+
+            return {
+                "base_amount": base_amount,
+                "rate_percent": rate,
+                "tax_due": round(tax_due, 2),
+                "description": description
+            }
+
+        return [retrieve_documents, tax_calculator]
 
     # LangGraph Nodes
     def assistant(self, state: MessagesState) -> dict:
@@ -399,7 +441,7 @@ Never fabricate legal provisions or interpretations.
         return agent
 
     # Public API
-    def query(self, user_input: str, thread_id: str = "default"):
+    def query(self, user_input: str, thread_id: str = "default") -> dict:
         """
         Ask a question and get an answer from the agent.
         """
