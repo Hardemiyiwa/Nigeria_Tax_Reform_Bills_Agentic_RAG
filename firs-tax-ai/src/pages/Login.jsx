@@ -11,14 +11,17 @@ export default function Login({ onLogin }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    console.log("Login submit", { email })
     ;(async () => {
       try {
         const res = await login(email, password)
+        console.log("Login response", res)
         const token = res.access_token
         onLogin(token)
         navigate("/chat")
       } catch (err) {
-        alert(err.message)
+        console.error("Login error", err)
+        alert(err.message || String(err))
       }
     })()
   }
@@ -55,3 +58,4 @@ export default function Login({ onLogin }) {
     </>
   )
 }
+
