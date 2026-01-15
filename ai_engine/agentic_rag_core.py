@@ -144,7 +144,7 @@ class VectorStoreManager:
         print("Creating vector store with embeddings...")
         self.vectorstore = Chroma(
             collection_name=self.collection_name,
-            embedding=self.embeddings,
+            embedding_function=self.embeddings,
             persist_directory=self.persist_directory
         )
         self.vectorstore.add_documents(documents=chunks)
@@ -261,7 +261,7 @@ class AgenticRAGGenerator:
         self,
         vectorstore_manager,
         openai_model: str = "gpt-4o-mini",
-        temperature: float = 0.0,
+        temperature: float = 0.5,
     ):
         """
         Initialize the Agentic RAG system.

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, constr
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 class UserCreate(BaseModel):
@@ -25,6 +25,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     chat_id: int
     reply: str
+    sources: Optional[List[Dict[str, Any]]] = None
 
 
 class MessageOut(BaseModel):
@@ -33,6 +34,7 @@ class MessageOut(BaseModel):
     role: str
     content: str
     created_at: datetime
+    sources: Optional[List[Dict[str, Any]]] = None
 
     class Config:
         orm_mode = True
@@ -46,3 +48,35 @@ class ChatOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class TaxCalculatorRequest(BaseModel):
+    """Request for tax scenario calculation"""
+    gross_income: Optional[float] = None
+    purchase_amount: Optional[float] = None
+    tax_type: str = "vat"  # vat, income_tax, cit, etc.
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "gross_income": 500000,
+                "purchase_amount": 100000,
+                "tax_type": "vat"
+            }
+        }
+
+
+class TaxCalculatorResponse(BaseModel):
+    """Response from tax calculator"""
+    tax_type: str
+    gross_amount: float
+    tax_amount: float
+    net_amount: float
+    tax_rate: float
+    description: str
+
+
+class ChatExportRequest(BaseModel):
+    """Request to export chat as PDF"""
+    chat_id: int
+    format: str = "pdf"  # pdf or json

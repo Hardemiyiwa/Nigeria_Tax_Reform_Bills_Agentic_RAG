@@ -11,12 +11,15 @@ export default function Register() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    console.log("Register submit", { email })
     ;(async () => {
       try {
-        await signup(email, password)
+        const res = await signup(email, password)
+        console.log("Register response", res)
         navigate("/login")
       } catch (err) {
-        alert(err.message)
+        console.error("Register error", err)
+        alert(err.message || String(err))
       }
     })()
   }
@@ -44,6 +47,7 @@ export default function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
 
           <button type="submit">Register</button>
         </form>
