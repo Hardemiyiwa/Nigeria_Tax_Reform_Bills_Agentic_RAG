@@ -5,7 +5,7 @@ import { sendChat, listChats, getChatMessages, calculateTax, exportChat } from "
 
 export default function Chat({ onLogout }) {
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Ask me anything about Nigeria’s tax reform." },
+    { role: "assistant", content: "Ask me anything about Nigeria's tax reform." },
   ])
   const [input, setInput] = useState("")
   const [chatId, setChatId] = useState(null)
@@ -15,7 +15,7 @@ export default function Chat({ onLogout }) {
   const textareaRef = useRef(null)
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark")
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en")
-
+  
   // Voice input state
   const [isListening, setIsListening] = useState(false)
   const [recognition, setRecognition] = useState(null)
@@ -85,13 +85,13 @@ export default function Chat({ onLogout }) {
   }
 
   useEffect(() => {
-    // try to load conversations from backend, fall back to localStorage
+    // Load conversations from backend
     const token = localStorage.getItem("token")
     if (token) {
       listChats(token)
         .then((data) => {
           const rows = data.chats || []
-          const mapped = rows.map((r) => ({ id: r.id, title: (r.last_message || "").slice(0,40) || `Chat ${r.id}`, lastMessage: r.last_message }))
+          const mapped = rows.map((r) => ({ id: r.id, title: (r.last_message || "").slice(0, 40) || `Chat ${r.id}`, lastMessage: r.last_message }))
           setConversations(mapped)
         })
         .catch(() => {
@@ -178,13 +178,25 @@ export default function Chat({ onLogout }) {
     try {
       const res = await sendChat(input, chatId, token, language)
       if (res.chat_id) setChatId(res.chat_id)
-      // prefer messages returned by backend when available and include timestamps
+      
+      // Prefer messages returned by backend when available and include timestamps
       if (res.messages && Array.isArray(res.messages)) {
-        setMessages(res.messages.map((mm) => ({ role: mm.role, content: mm.content, created_at: mm.created_at, sources: mm.sources || res.sources })))
+        setMessages(res.messages.map((mm) => ({ 
+          role: mm.role, 
+          content: mm.content, 
+          created_at: mm.created_at,
+          sources: mm.sources || res.sources
+        })))
       } else {
-        setMessages((m) => [...m, { role: "assistant", content: res.reply, created_at: new Date().toISOString(), sources: res.sources }])
+        setMessages((m) => [...m, { 
+          role: "assistant", 
+          content: res.reply, 
+          created_at: new Date().toISOString(),
+          sources: res.sources
+        }])
       }
-      // persist conversation metadata
+      
+      // Persist conversation metadata
       try {
         const id = res.chat_id || chatId || `local_${Date.now()}`
         const updated = {
@@ -207,7 +219,7 @@ export default function Chat({ onLogout }) {
 
   const startNewChat = () => {
     setChatId(null)
-    setMessages([{ role: "assistant", content: "Ask me anything about Nigeria’s tax reform." }])
+    setMessages([{ role: "assistant", content: "Ask me anything about Nigeria's tax reform." }])
   }
 
   const openConversation = (conv) => {
@@ -220,7 +232,6 @@ export default function Chat({ onLogout }) {
           setMessages(msgs.map((m) => ({ role: m.role, content: m.content, created_at: m.created_at })))
         })
         .catch(() => {
-          // fallback
           setMessages([{ role: "assistant", content: conv.lastMessage || "" }])
         })
     } else {
@@ -234,16 +245,16 @@ export default function Chat({ onLogout }) {
 
       <div className="chat-layout">
         <aside className="chat-sidebar">
-          <div style={{display:'flex', gap:8, alignItems:'center'}}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <button className="new-chat-btn" onClick={startNewChat}>＋ New Chat</button>
-            <select value={language} onChange={(e)=>{ setLanguage(e.target.value); localStorage.setItem('language', e.target.value)}} style={{marginLeft:8, background:'#0f1724', color:'#e6eef8', border:'1px solid rgba(255,255,255,0.04)', padding:'6px 8px', borderRadius:6}}>
+            <select value={language} onChange={(e) => { setLanguage(e.target.value); localStorage.setItem('language', e.target.value) }} style={{ marginLeft: 8, background: '#0f1724', color: '#e6eef8', border: '1px solid rgba(255,255,255,0.04)', padding: '6px 8px', borderRadius: 6 }}>
               <option value="en">EN</option>
               <option value="yo">Yor</option>
               <option value="ha">Hau</option>
               <option value="ig">Ibo</option>
               <option value="fr">FR</option>
             </select>
-            <button onClick={()=>setTheme(theme==='dark'?'light':'dark')} style={{marginLeft:'auto', padding:'6px 10px', borderRadius:6, background:'transparent', color:'#e6eef8', border:'1px solid rgba(255,255,255,0.04)'}}>{theme==='dark'?'Light':'Dark'}</button>
+            <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} style={{ marginLeft: 'auto', padding: '6px 10px', borderRadius: 6, background: 'transparent', color: '#e6eef8', border: '1px solid rgba(255,255,255,0.04)' }}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
           </div>
 
           <ul className="chat-list">
@@ -331,8 +342,7 @@ export default function Chat({ onLogout }) {
                     color: '#e6eef8',
                     border: '1px solid rgba(255,255,255,0.1)',
                     borderRadius: 4,
-                    fontSize: 12,
-                    boxSizing: 'border-box'
+                    fontSize: 12
                   }}>
                     <option value="vat">VAT (7.5%)</option>
                     <option value="income_tax">Personal Income Tax</option>
